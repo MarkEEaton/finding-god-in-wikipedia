@@ -16,7 +16,10 @@ def finder():
         title = item['title']
         t = requests.get("http://en.wikipedia.org/w/api.php?action=parse&prop=text&page=" + title + "&format=json")
         t_data = t.json()
-        html = t_data['parse']['text']['*']
+        try:
+            html = t_data['parse']['text']['*']
+        except KeyError:
+            return False
         cleaned_text = BeautifulSoup(html, 'lxml').get_text()
         stripped_text = cleaned_text.rstrip()  
         doc = nlp(stripped_text)
