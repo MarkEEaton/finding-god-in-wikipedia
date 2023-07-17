@@ -1,7 +1,7 @@
 import requests
+from goose3 import Goose
+from mastodon import Mastodon
 from spacy.lang.en import English
-from bs4 import BeautifulSoup
-from pprint import pprint
 
 nlp = English()
 nlp.add_pipe('sentencizer')
@@ -14,21 +14,23 @@ def finder():
     r_data = r.json()
     for item in r_data['query']['random']:
         title = item['title']
-        t = requests.get("http://en.wikipedia.org/w/api.php?action=parse&prop=text&page=" + title + "&format=json")
-        t_data = t.json()
-        html = t_data['parse']['text']['*']
-        cleaned_text = BeautifulSoup(html, 'lxml').get_text()
-        stripped_text = cleaned_text.rstrip()  
-        doc = nlp(stripped_text)
+        g = Goose()
+        article = g.extract("http://en.wikipedia.org/wiki/" + title)
+        text = article.cleaned_text
+        doc = nlp(text)
         sentences = [sent.text.strip() for sent in doc.sents]
         for sentence in sentences:
-            if len(sentence) < 350:
+            if len(sentence) < 150:
                 if "\n" not in sentence:
                     if any(god in sentence.lower() for god in gods):
                         print(sentence)
                         return True
         else:
-            print('none')
+            print('---- none ----')
+            try:
+                print(sentence)
+            except:
+                print("no sentence")
             return False
 
 while not found:
