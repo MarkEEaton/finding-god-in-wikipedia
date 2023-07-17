@@ -1,3 +1,4 @@
+import re
 import requests
 from goose3 import Goose
 from mastodon import Mastodon
@@ -20,6 +21,8 @@ def finder():
         doc = nlp(text)
         sentences = [sent.text.strip() for sent in doc.sents]
         for sentence in sentences:
+            sentence = re.sub('\[.*?\]','', sentence)
+            sentence = re.sub('\(.*?\)','', sentence)
             if len(sentence) < 150:
                 if "\n" not in sentence:
                     if any(god in sentence.lower() for god in gods):
